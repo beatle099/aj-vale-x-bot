@@ -1,0 +1,81 @@
+name: A.J. Vale X Autopost
+
+on:
+  schedule:
+    # 13:00 UTC = 22:00 Asia/Tokyo.
+    - cron: "0 13 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  autopost:
+    runs-on: ubuntu-latest
+    env:
+      # Hard safety switch. Add repository variable ENABLE_X_AUTO_POST=true to post.
+      DRY_RUN: ${{ vars.ENABLE_X_AUTO_POST == 'true' && 'false' || 'true' }}
+      AUTO_POST: ${{ vars.ENABLE_X_AUTO_POST == 'true' && 'true' || 'false' }}
+      HISTORY_PATH: post_history.json
+      SIMILARITY_THRESHOLD: "0.82"
+      LOG_LEVEL: INFO
+      X_API_KEY: ${{ secrets.X_API_KEY }}
+      X_API_SECRET: ${{ secrets.X_API_SECRET }}
+      X_ACCESS_TOKEN: ${{ secrets.X_ACCESS_TOKEN }}
+      X_ACCESS_TOKEN_SECRET: ${{ secrets.X_ACCESS_TOKEN_SECRET }}
+      X_BEARER_TOKEN: ${{ secrets.X_BEARER_TOKEN }}
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Compile Python files
+        run: python -m py_compile main.py trigger_router.py post_generator.py scorer.py history_store.py prompts.py catalog.py x_client.py
+
+      - name: Select daily content lane
+        id: lane
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          triggers=(persona_post mood_post book_echo reader_question writing_update)
+          titles=(
+            "The Last Prophet Machine"
+            "Cities of Judgment"
+            "The First Room"
+            "The Last Room"
+            "The Sparks of Eternity"
+            "The First Uninvented Idea"
+            "Whispers Between Worlds"
+          )
+
+          day_of_year="$(date -u +%j)"
+          trigger_index=$((10#$day_of_year % ${#triggers[@]}))
+          title_index=$((10#$day_of_year % ${#titles[@]}))
+
+          echo "trigger=${triggers[$trigger_index]}" >> "$GITHUB_OUTPUT"
+          echo "title=${titles[$title_index]}" >> "$GITHUB_OUTPUT"
+
+      - name: Generate and optionally post
+        shell: bash
+        run: |
+          set -euo pipefail
+          python main.py \
+            --trigger "${{ steps.lane.outputs.trigger }}" \
+            --title "${{ steps.lane.outputs.title }}" \
+            --post \
+            | tee autopost_result.json
+
+      - name: Upload autopost result
+        uses: actions/upload-artifact@v4
+        with:
+          name: aj-vale-x-autopost
+          path: |
+            autopost_result.json
+            post_history.json
+          if-no-files-found: ignore
