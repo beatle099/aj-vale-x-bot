@@ -8,6 +8,12 @@ The workflow lives at:
 .github/workflows/x-control.yml
 ```
 
+Automatic scheduled posting lives at:
+
+```text
+.github/workflows/x-autopost.yml
+```
+
 ## Safe Default
 
 The workflow defaults to draft-only mode:
@@ -54,7 +60,31 @@ AUTO_POST=true
 valid X credentials are present
 ```
 
-The workflow is manual-only through `workflow_dispatch`. It does not schedule posts by itself.
+## Automatic Posting
+
+The `A.J. Vale X Autopost` workflow runs daily at:
+
+```text
+13:00 UTC
+22:00 Asia/Tokyo
+```
+
+It remains a dry run until you add this repository variable:
+
+```text
+ENABLE_X_AUTO_POST=true
+```
+
+Required setup:
+
+1. Add the X secrets listed above.
+2. Add repository variable `ENABLE_X_AUTO_POST` with value `true`.
+3. Open `Actions`.
+4. Select `A.J. Vale X Autopost`.
+5. Run it manually once to test.
+6. Check the `aj-vale-x-autopost` artifact and your X account.
+
+To pause automatic posting, change `ENABLE_X_AUTO_POST` to `false` or delete the variable.
 
 ## Recommended Use
 
