@@ -46,7 +46,7 @@ class XClient:
         if self._has_oauth1_credentials:
             headers["Authorization"] = self._oauth1_header(
                 method="POST",
-                url="https://api.twitter.com/2/tweets",
+                url="https://api.x.com/2/tweets",
             )
         elif self.bearer_token:
             headers["Authorization"] = f"Bearer {self.bearer_token}"
@@ -58,7 +58,7 @@ class XClient:
 
         payload = json.dumps({"text": text}).encode("utf-8")
         request = urllib.request.Request(
-            "https://api.twitter.com/2/tweets",
+            "https://api.x.com/2/tweets",
             data=payload,
             headers=headers,
             method="POST",
