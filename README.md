@@ -28,6 +28,7 @@ The tool is intentionally curiosity-first. It treats the catalog as creative sou
 - `sample_payloads/` - ready-to-run JSON payloads.
 - `.env.example` - configuration template.
 - `.github/workflows/x-control.yml` - manual GitHub Actions control workflow.
+- `.github/workflows/x-autopost.yml` - daily scheduled autopost workflow with a hard safety switch.
 - `github_control/` - instructions for running the bot from GitHub.
 
 ## Setup
@@ -119,6 +120,37 @@ X_ACCESS_TOKEN_SECRET
 ```
 
 Direct posting is still disabled unless the manual workflow input `post_to_x=true` is selected.
+
+## Automatic Posting From GitHub
+
+The repository also includes a scheduled workflow:
+
+```text
+.github/workflows/x-autopost.yml
+```
+
+It runs daily at:
+
+```text
+13:00 UTC
+22:00 Asia/Tokyo
+```
+
+It will not post until you add this repository variable:
+
+```text
+ENABLE_X_AUTO_POST=true
+```
+
+To enable automatic posting:
+
+1. Add the X secrets listed above.
+2. Add repository variable `ENABLE_X_AUTO_POST=true`.
+3. Go to `Actions`.
+4. Select `A.J. Vale X Autopost`.
+5. Run it manually once to confirm the output.
+
+To pause it, set `ENABLE_X_AUTO_POST=false` or delete that variable.
 
 ## Optional Webhook
 
