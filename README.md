@@ -12,6 +12,7 @@ The tool is intentionally curiosity-first. It treats the catalog as creative sou
 - Rejects near-duplicates using local JSON history and configurable similarity threshold.
 - Keeps `DRY_RUN=true` and `AUTO_POST=false` by default.
 - Supports CLI usage and an optional FastAPI webhook.
+- Supports manual GitHub Actions control from the repository UI.
 - Keeps the book catalog editable in `catalog.py`, including aliases such as `Dept Without Closure` and `Debt Without Closure`.
 
 ## Files
@@ -26,6 +27,8 @@ The tool is intentionally curiosity-first. It treats the catalog as creative sou
 - `x_client.py` - dry-run-first X API client.
 - `sample_payloads/` - ready-to-run JSON payloads.
 - `.env.example` - configuration template.
+- `.github/workflows/x-control.yml` - manual GitHub Actions control workflow.
+- `github_control/` - instructions for running the bot from GitHub.
 
 ## Setup
 
@@ -87,8 +90,35 @@ Actual posting requires all of these:
 ```bash
 DRY_RUN=false
 AUTO_POST=true
-X_BEARER_TOKEN=...
+X_API_KEY=...
+X_API_SECRET=...
+X_ACCESS_TOKEN=...
+X_ACCESS_TOKEN_SECRET=...
 ```
+
+## GitHub Actions Control
+
+You can control the bot from GitHub without using your local terminal:
+
+1. Open the repository on GitHub.
+2. Go to `Actions`.
+3. Select `A.J. Vale X Control`.
+4. Click `Run workflow`.
+5. Choose the trigger and optional title/note fields.
+6. Leave `post_to_x=false` for draft-only mode.
+
+The completed run uploads an `aj-vale-x-draft` artifact containing `draft_result.json`.
+
+To enable direct posting from GitHub, add these repository secrets:
+
+```text
+X_API_KEY
+X_API_SECRET
+X_ACCESS_TOKEN
+X_ACCESS_TOKEN_SECRET
+```
+
+Direct posting is still disabled unless the manual workflow input `post_to_x=true` is selected.
 
 ## Optional Webhook
 
